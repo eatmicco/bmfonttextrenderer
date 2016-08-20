@@ -55,49 +55,6 @@ public class BMFontTextEditor : Editor
 
     public override void OnInspectorGUI()
     {
-        /*
-        TextAsset config = (TextAsset)EditorGUILayout.ObjectField("Font Config", _target.fontConfig, typeof(TextAsset));
-        Material material = (Material)EditorGUILayout.ObjectField("Font Material", _target.fontMaterial, typeof(Material));
-        if (_target.fontConfig != config || _target.fontMaterial != material) {
-            _target.fontConfig = config;
-            _target.fontMaterial = material;
-            _target.Initialize();
-            _target.InitializeFont();
-        }
-        BMFontText.PivotPosition pivot = (BMFontText.PivotPosition)EditorGUILayout.EnumPopup("Pivot", _target.pivotPosition);
-        if (_target.pivotPosition != pivot)
-        {
-            _target.pivotPosition = pivot;
-            _target.UpdatePivot();
-        }
-        float scale = EditorGUILayout.FloatField("Scale", _target.textScale);
-        EditorGUILayout.LabelField("Color");
-        Color topColor = EditorGUILayout.ColorField("Top", _target.topColor);
-        Color bottomColor = EditorGUILayout.ColorField("Bottom", _target.bottomColor);
-        _target.multiline = EditorGUILayout.Toggle("Multiline", _target.multiline);
-        string text = "";
-        if (_target.multiline)
-        {
-            EditorGUILayout.LabelField("Text");
-            text = EditorGUILayout.TextArea(_target.text);
-            Repaint();
-        }
-        else
-        {
-            text = EditorGUILayout.TextField("Text", _target.text);
-            Repaint();
-        }
-        
-        if (_target.textScale != scale || _target.topColor != topColor || _target.bottomColor != bottomColor || _target.text != text)
-        {
-            _target.textScale = scale;
-            _target.topColor = topColor;
-            _target.bottomColor = bottomColor;
-            _target.text = text;
-            _target.Commit();
-        }
-        */
-
         serializedObject.Update();
 
         EditorGUILayout.PropertyField(_fontConfigProp, new GUIContent("Font Config"));
