@@ -36,24 +36,24 @@ public class BMFontText : MonoBehaviour {
 	public Material[] fontMaterials;
 	public PivotPosition pivotPosition = PivotPosition.TOP_LEFT;
 	public float textScale = 1.0f;
-    public Color topColor;
-    public Color bottomColor;
-    public bool isUnicode = false;
+	public Color topColor;
+	public Color bottomColor;
+	public bool isUnicode = false;
 
-    [Multiline()]
-    public string text;
+	[Multiline()]
+	public string text;
 
-    private FontFile _fontFile;
+	private FontFile _fontFile;
 	private Dictionary<int, SpriteChar> _charMap;
 	private float _devider;
 	private Vector2 _textureSize;
 	private List<Vector3> _vertexList;
 	private List<Vector2> _uvList;
 	private List<Vector3> _normalList;
-    private List<Color> _colorList;
-    private List<List<int>> _indexLists;
-    private PivotPosition _lastPivot = PivotPosition.MIDDLE_CENTER;
-    private Color _lastColor;
+	private List<Color> _colorList;
+	private List<List<int>> _indexLists;
+	private PivotPosition _lastPivot = PivotPosition.MIDDLE_CENTER;
+	private Color _lastColor;
 
 	private void CreatePlaneMesh(Vector2 offset, Rect newTexCoord, Vector2 texSize, float scale, int page) {	
 		float xTemp = newTexCoord.width / _devider;
@@ -95,20 +95,20 @@ public class BMFontText : MonoBehaviour {
 			3, 1, 2
 		};
 
-        Color[] newColors = {
-            topColor, topColor,
-            bottomColor, bottomColor
-        };
+		Color[] newColors = {
+			topColor, topColor,
+			bottomColor, bottomColor
+		};
 
 		int lastVertexIndex = _vertexList.Count;
 		for (int i = 0; i < newVertices.Length; ++i) {
 			_vertexList.Add(newVertices[i]);
 			_uvList.Add(newUV[i]);
 			_normalList.Add(newNormals[i]);
-            _colorList.Add(newColors[i]);
+			_colorList.Add(newColors[i]);
 		}
 
-        Debug.Log("_indexLists.Count " + _indexLists.Count);
+		Debug.Log("_indexLists.Count " + _indexLists.Count);
 		for (int i = 0; i < newIndices.Length; ++i) {
 			_indexLists[page].Add(newIndices[i] + lastVertexIndex);
 		}
@@ -148,7 +148,7 @@ public class BMFontText : MonoBehaviour {
 			mesh = gameObject.GetComponent<MeshFilter>().sharedMesh;
 		}
 
-        if (mesh == null) return;
+		if (mesh == null) return;
 		Vector2 offset = GetOffset(pivotPosition, mesh.bounds);
 		Vector2 lastOffset = GetOffset(_lastPivot, mesh.bounds);
 
@@ -161,7 +161,7 @@ public class BMFontText : MonoBehaviour {
 		}
 
 		mesh.vertices = vertices;
-        _lastPivot = pivotPosition;
+		_lastPivot = pivotPosition;
 	}
 
 
@@ -172,141 +172,141 @@ public class BMFontText : MonoBehaviour {
 	 * bmfText.Commit();
 	 */
 	public void Commit() {
-        if (_indexLists == null) return;
+		if (_indexLists == null) return;
 
 		_vertexList.Clear();
 		_uvList.Clear();
 		_normalList.Clear();
-        _colorList.Clear();
-        for (int i = 0; i < _indexLists.Count; ++i)
-            _indexLists[i].Clear();
+		_colorList.Clear();
+		for (int i = 0; i < _indexLists.Count; ++i)
+			_indexLists[i].Clear();
 
-        Debug.Log(short.MaxValue);
+		Debug.Log(short.MaxValue);
 
-        _lastPivot = PivotPosition.TOP_LEFT;    //return the pivot to TOP_LEFT
+		_lastPivot = PivotPosition.TOP_LEFT;	//return the pivot to TOP_LEFT
 
-        if (text == null || text.Equals("")) return;
+		if (text == null || text.Equals("")) return;
 
-        if (!isUnicode)
-        {
-            _devider = _textureSize.x > _textureSize.y ? _textureSize.x : _textureSize.y;
-            Vector2 d = new Vector2(0, 0);
-            int lineHeight = 0;
-            char lastChar = ' ';
-            foreach (char c in text)
-            {
-                Debug.Log((int)c);
-                if (c != 32 && c != 13 && c != 10)
-                {
-                    if (lineHeight < _charMap[c].fontChar.YOffset + _charMap[c].fontChar.Height) lineHeight = _charMap[c].fontChar.YOffset + _charMap[c].fontChar.Height;
-                    Vector2 offset = new Vector2(d.x - _charMap[c].fontChar.XOffset, d.y - _charMap[c].fontChar.YOffset);
-                    CreatePlaneMesh(offset, _charMap[c].rect, _textureSize, textScale, _charMap[c].fontChar.Page);
-                }
-                else if (c == 13)
-                {
-                    d.y -= lineHeight;
-                    lastChar = c;
-                    continue;
-                }
-                else if (c == 10)
-                {
-                    if (lastChar != 13) d.y -= lineHeight;
-                    d.x = 0;
-                    lastChar = c;
-                    continue;
-                }
-                d.x -= _charMap[c].fontChar.XAdvance;
-                lastChar = c;
-            }
-        }
-        else
-        {
-            Encoding utf32 = Encoding.UTF32;
-            _devider = _textureSize.x > _textureSize.y ? _textureSize.x : _textureSize.y;
-            Vector2 d = new Vector2(0, 0);
-            int lineHeight = 0;
-            char lastChar = ' ';
-            char[] textChar = text.ToCharArray();
-            for (int i = 0; i < textChar.Length; ++i)
-            {
-                char c = textChar[i];
-                Debug.Log(c);
-                byte[] b = utf32.GetBytes(textChar, i, 1);
-                int u = BitConverter.ToInt32(b, 0);
-                Debug.Log(u);
-                if (c != 32 && c != 13 && c != 10)
-                {
-                    if (lineHeight < _charMap[u].fontChar.YOffset + _charMap[u].fontChar.Height) lineHeight = _charMap[u].fontChar.YOffset + _charMap[u].fontChar.Height;
-                    Vector2 offset = new Vector2(d.x - _charMap[u].fontChar.XOffset, d.y - _charMap[u].fontChar.YOffset);
-                    CreatePlaneMesh(offset, _charMap[u].rect, _textureSize, textScale, _charMap[u].fontChar.Page);
-                }
-                else if (c == 13)
-                {
-                    d.y -= lineHeight;
-                    lastChar = c;
-                    continue;
-                }
-                else if (c == 10)
-                {
-                    if (lastChar != 13) d.y -= lineHeight;
-                    d.x = 0;
-                    lastChar = c;
-                    continue;
-                }
-                d.x -= _charMap[u].fontChar.XAdvance;
-                lastChar = c;
-            }
-        }
+		if (!isUnicode)
+		{
+			_devider = _textureSize.x > _textureSize.y ? _textureSize.x : _textureSize.y;
+			Vector2 d = new Vector2(0, 0);
+			int lineHeight = 0;
+			char lastChar = ' ';
+			foreach (char c in text)
+			{
+				Debug.Log((int)c);
+				if (c != 32 && c != 13 && c != 10)
+				{
+					if (lineHeight < _charMap[c].fontChar.YOffset + _charMap[c].fontChar.Height) lineHeight = _charMap[c].fontChar.YOffset + _charMap[c].fontChar.Height;
+					Vector2 offset = new Vector2(d.x - _charMap[c].fontChar.XOffset, d.y - _charMap[c].fontChar.YOffset);
+					CreatePlaneMesh(offset, _charMap[c].rect, _textureSize, textScale, _charMap[c].fontChar.Page);
+				}
+				else if (c == 13)
+				{
+					d.y -= lineHeight;
+					lastChar = c;
+					continue;
+				}
+				else if (c == 10)
+				{
+					if (lastChar != 13) d.y -= lineHeight;
+					d.x = 0;
+					lastChar = c;
+					continue;
+				}
+				d.x -= _charMap[c].fontChar.XAdvance;
+				lastChar = c;
+			}
+		}
+		else
+		{
+			Encoding utf32 = Encoding.UTF32;
+			_devider = _textureSize.x > _textureSize.y ? _textureSize.x : _textureSize.y;
+			Vector2 d = new Vector2(0, 0);
+			int lineHeight = 0;
+			char lastChar = ' ';
+			char[] textChar = text.ToCharArray();
+			for (int i = 0; i < textChar.Length; ++i)
+			{
+				char c = textChar[i];
+				Debug.Log(c);
+				byte[] b = utf32.GetBytes(textChar, i, 1);
+				int u = BitConverter.ToInt32(b, 0);
+				Debug.Log(u);
+				if (c != 32 && c != 13 && c != 10)
+				{
+					if (lineHeight < _charMap[u].fontChar.YOffset + _charMap[u].fontChar.Height) lineHeight = _charMap[u].fontChar.YOffset + _charMap[u].fontChar.Height;
+					Vector2 offset = new Vector2(d.x - _charMap[u].fontChar.XOffset, d.y - _charMap[u].fontChar.YOffset);
+					CreatePlaneMesh(offset, _charMap[u].rect, _textureSize, textScale, _charMap[u].fontChar.Page);
+				}
+				else if (c == 13)
+				{
+					d.y -= lineHeight;
+					lastChar = c;
+					continue;
+				}
+				else if (c == 10)
+				{
+					if (lastChar != 13) d.y -= lineHeight;
+					d.x = 0;
+					lastChar = c;
+					continue;
+				}
+				d.x -= _charMap[u].fontChar.XAdvance;
+				lastChar = c;
+			}
+		}
 
 		Mesh newMesh = new Mesh();
 		newMesh.vertices = _vertexList.ToArray();
 		newMesh.uv = _uvList.ToArray();
 		newMesh.normals = _normalList.ToArray();
-        newMesh.colors = _colorList.ToArray();
-        List<int[]> subMeshIndices = new List<int[]>();
-        List<Material> includedMaterials = new List<Material>();
-        for (int i = 0; i < _indexLists.Count; ++i)
-        {
-            if (_indexLists[i].Count > 0)
-            {
-                subMeshIndices.Add(_indexLists[i].ToArray());
-                includedMaterials.Add(fontMaterials[i]);
-            }
-        }
-        newMesh.subMeshCount = subMeshIndices.Count;
-        for (int i = 0; i < subMeshIndices.Count; ++i)
-        {
-            newMesh.SetTriangles(subMeshIndices[i], i);
-        }
-        newMesh.RecalculateBounds();
+		newMesh.colors = _colorList.ToArray();
+		List<int[]> subMeshIndices = new List<int[]>();
+		List<Material> includedMaterials = new List<Material>();
+		for (int i = 0; i < _indexLists.Count; ++i)
+		{
+			if (_indexLists[i].Count > 0)
+			{
+				subMeshIndices.Add(_indexLists[i].ToArray());
+				includedMaterials.Add(fontMaterials[i]);
+			}
+		}
+		newMesh.subMeshCount = subMeshIndices.Count;
+		for (int i = 0; i < subMeshIndices.Count; ++i)
+		{
+			newMesh.SetTriangles(subMeshIndices[i], i);
+		}
+		newMesh.RecalculateBounds();
 
 		gameObject.GetComponent<MeshFilter>().mesh = newMesh;
-        gameObject.GetComponent<MeshRenderer>().materials = includedMaterials.ToArray();
+		gameObject.GetComponent<MeshRenderer>().materials = includedMaterials.ToArray();
 
 		UpdatePivot();
 	}
 
-    public void Initialize()
-    {
-        _vertexList = new List<Vector3>();
-        _uvList = new List<Vector2>();
-        _normalList = new List<Vector3>();
-        _colorList = new List<Color>();
-    }
+	public void Initialize()
+	{
+		_vertexList = new List<Vector3>();
+		_uvList = new List<Vector2>();
+		_normalList = new List<Vector3>();
+		_colorList = new List<Color>();
+	}
 
-    public void InitializeFont()
-    {
-        if (fontConfig != null && fontMaterials.Length > 0) {
+	public void InitializeFont()
+	{
+		if (fontConfig != null && fontMaterials.Length > 0) {
 			_fontFile = FontLoader.LoadFromString(fontConfig.text);
-            if (_fontFile.Pages.Count != fontMaterials.Length)
-            {
-                Debug.LogError("Materials count don't match!");
-                return;
-            }
+			if (_fontFile.Pages.Count != fontMaterials.Length)
+			{
+				Debug.LogError("Materials count don't match!");
+				return;
+			}
 
-            _indexLists = new List<List<int>>();
-            for (int i = 0; i < _fontFile.Pages.Count; ++i)
-                _indexLists.Add(new List<int>());
+			_indexLists = new List<List<int>>();
+			for (int i = 0; i < _fontFile.Pages.Count; ++i)
+				_indexLists.Add(new List<int>());
 
 			_textureSize = new Vector2(_fontFile.Common.ScaleW, _fontFile.Common.ScaleH);
 			_charMap = new Dictionary<int, SpriteChar>();
@@ -318,17 +318,17 @@ public class BMFontText : MonoBehaviour {
 				_charMap.Add(_fontFile.Chars[i].ID, sc);
 			}
 
-            Debug.Log("Font Initialized");
-        }
-    }
+			Debug.Log("Font Initialized");
+		}
+	}
 	
 	// Use this for initialization
 	void Start () {
-        Initialize();
+		Initialize();
 
-        InitializeFont();
+		InitializeFont();
 
-        Commit();
+		Commit();
 	}
 	
 	// Update is called once per frame
